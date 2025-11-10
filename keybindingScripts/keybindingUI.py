@@ -15,11 +15,12 @@ class keybindingUI(ScreenNode):
         self.nowSelectButton = None
         self.nowInputKeys = []
 
-    def Create(self):
-        # 进入PC操作模式
-        compFactory.CreateGame(levelId).SimulateTouchWithMouse(False)
+    # def Create(self):
+    #     # 进入PC操作模式
+    #     compFactory.CreateGame(levelId).SimulateTouchWithMouse(False)
 
     def KeyPressedEvent(self, pressedKeys):
+        # type: (int) -> None
         # 键盘按键事件
         if not self.nowSelectButton:
             return
@@ -29,8 +30,8 @@ class keybindingUI(ScreenNode):
         nowInputKeys = tuple(self.nowInputKeys)
         bindings.keys = nowInputKeys
         self.UpdateScreen(True)
-        # 保存玩家设置
         modKeyBinding = keyBindingData.KeyMapping[self.selectorIndex]
+        # 保存玩家设置
         data = compFactory.CreateConfigClient(levelId).GetConfigData(str(modKeyBinding.ModSpace) + str(modKeyBinding.ModName), True) or {}
         key = str(bindings.default_keys) + str(bindings.description)
         data[key] = nowInputKeys

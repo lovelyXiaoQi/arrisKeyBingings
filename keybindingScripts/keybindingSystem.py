@@ -116,24 +116,24 @@ class CreateKeyBindingFactory(object):
     按键绑定工厂类
     用于创建和管理特定模组的按键绑定
     """
+    def __new__(cls, modSpace, modName, modIconPath="textures/ui/keyboard_and_mouse_glyph_color"):
+        # 防止重复创建
+        for obj in keyBindingData.KeyMapping:
+            if (obj.ModSpace, obj.ModName) == (modSpace, modName):
+                return obj
+        cls.__bindings = []
+        return super(CreateKeyBindingFactory, cls).__new__(cls)
+
     def __init__(self, modSpace, modName, modIconPath="textures/ui/keyboard_and_mouse_glyph_color"):
         # type: (str, str, str) -> None
         self.__modSpace = modSpace
         self.__modName = modName
         self.__modIconPath = modIconPath
-        self.__bindings = []
-        self.Create()
 
-    def Create(self):
-        # type: () -> None
-        for obj in keyBindingData.KeyMapping:
-            if (obj.ModSpace, obj.ModName) == (self.__modSpace, self.__modName):
-                # 防止重载时,重复添加按键映射
-                return
         keyBindingData.KeyMapping = self
 
     def RegisterKeyBinding(self, keys, callback, description, allow_modify=True, trigger_mode=0, trigger_screens=()):
-        # type: (tuple, callable, str, bool, int, tuple) -> None
+        # type: (tuple, callable, str, bool, int, tuple) -> int
         """
         :param keys: 按下的按键，支持单个或多个组合键
         :param callback: 触发的回调函数
@@ -141,7 +141,7 @@ class CreateKeyBindingFactory(object):
         :param allow_modify: 是否允许玩家进行自定义修改 default: True
         :param trigger_mode: 触发模式: 0 为单次触发 1 为游戏Tick触发，直到松开为止 2 为渲染帧Tick触发，直到松开为止 (默认为0)
         :param trigger_screens: 允许触发的界面 (默认为空,代表全局触发)
-        :return: None
+        :return: 返回该按键绑定的唯一ID, 用于后续获取或修改
         """
         configData = compFactory.CreateConfigClient(levelId).GetConfigData(str(self.ModSpace) + str(self.ModName), True) or {}
         key = str(keys) + str(description)
@@ -149,7 +149,38 @@ class CreateKeyBindingFactory(object):
             bindingKeys = configData.get(key)
         else:
             bindingKeys = keys
+
+        # 检查是否已存在相同的按键绑定（基于 keys 和 description）
+        for existingBindings in self.__bindings:
+            if existingBindings.keys == tuple(bindingKeys) and existingBindings.description == description:
+                return hash((bindingKeys, description))
         self.__bindings.append(KeyBinding(bindingKeys, callback, description, allow_modify, trigger_mode, trigger_screens, keys))
+        return hash((bindingKeys, description))
+
+    def GetKeyBinding(self, Id):
+        # type: (int) -> tuple
+        """
+        :param Id: 按键绑定的唯一ID
+        :return: 返回该按键绑定的按键元组, 包括玩家自定义修改后的按键
+        """
+        for binding in self.__bindings:
+            if hash((binding.keys, binding.description)) != int(Id):
+                continue
+            return binding.keys
+        return ()
+    
+    def UnBindKey(self, Id):
+        # type: (int) -> bool
+        """
+        :param Id: 按键绑定的唯一ID
+        :return: 解除该按键绑定
+        """
+        for binding in self.__bindings:
+            if hash((binding.keys, binding.description)) != int(Id):
+                continue
+            self.__bindings.remove(binding)
+            return True
+        return False
 
     @property
     def ModSpace(self):
@@ -223,8 +254,8 @@ class keybindingSystem(ClientSystem):
             # 在按键映射设置界面取消触发回调函数，防止在设置时出现意外情况
             return
         # 检查并触发键位绑定
-        for cls in keyBindingData.KeyMapping:
-            for mappingData in cls.Bindings:
+        for obj in keyBindingData.KeyMapping:
+            for mappingData in obj.Bindings:
                 if Counter(mappingData.keys) == Counter(self._pressed_keys):
                     if mappingData.trigger_screens and screenName not in mappingData.trigger_screens:
                         continue

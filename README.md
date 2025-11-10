@@ -73,6 +73,9 @@ resource_pack/
 | `trigger_mode` | int | 否 | 触发模式（默认0）详细见下方说明 |
 | `trigger_screens` | tuple | 否 | 允许触发的界面列表（默认空元组表示全局） |
 
+**返回值：**
+- `int`：返回该按键绑定的唯一ID，用于后续通过 `GetKeyBinding` 获取按键或使用 `UnBindKey` 解除绑定
+
 **trigger_mode 触发模式：**
 
 - `0`：单次触发 - 按键按下时触发一次
@@ -154,7 +157,61 @@ keyFactory.RegisterKeyBinding(
 )
 ```
 
-#### 4. 打开按键设置界面
+#### 4. 获取按键绑定
+
+使用 `GetKeyBinding` 方法获取指定ID的按键绑定（包括玩家自定义修改后的按键）：
+
+```python
+# 注册按键绑定时会返回唯一ID
+binding_id = keyFactory.RegisterKeyBinding(
+    keys=(69,),
+    callback=callback,
+    description="打开菜单",
+)
+
+# 使用ID获取当前绑定的按键
+current_keys = keyFactory.GetKeyBinding(binding_id)
+print(current_keys)  # 输出: (69,) 或玩家修改后的按键
+```
+
+**GetKeyBinding 参数说明：**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `Id` | int | 是 | 按键绑定的唯一ID（由RegisterKeyBinding返回） |
+
+**返回值：**
+- `tuple`：返回该按键绑定的按键元组，包括玩家自定义修改后的按键
+- 如果ID不存在，返回空元组 `()`
+
+#### 5. 解除按键绑定
+
+使用 `UnBindKey` 方法动态解除按键绑定：
+
+```python
+# 解除之前注册的按键绑定
+success = keyFactory.UnBindKey(binding_id)
+if success:
+    print("按键绑定已成功解除")
+else:
+    print("未找到对应的按键绑定")
+```
+
+**UnBindKey 参数说明：**
+
+| 参数 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `Id` | int | 是 | 按键绑定的唯一ID（由RegisterKeyBinding返回） |
+
+**返回值：**
+- `bool`：成功解除返回 `True`，未找到对应绑定返回 `False`
+
+**使用场景：**
+- 动态管理按键绑定的生命周期
+- 根据游戏状态临时启用/禁用某些按键功能
+- 模组卸载时清理注册的按键绑定
+
+#### 6. 打开按键设置界面
 
 除了使用我们在setting页面注册的按钮打开以外，还可以在您的代码中调用以下方法打开按键设置界面
 或者直接使用PushScreen接口

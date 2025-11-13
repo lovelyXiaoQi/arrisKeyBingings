@@ -19,17 +19,11 @@ class KeyBindingData(object):
     _instance = None
     
     def __new__(cls):
+        """单例模式"""
         if cls._instance is None:
             cls._instance = super(KeyBindingData, cls).__new__(cls)
             cls._instance._bindings = []
         return cls._instance
-    
-    def __init__(self):
-        # 避免重复初始化
-        if hasattr(self, '_initialized'):
-            return
-        self._bindings = []
-        self._initialized = True
 
     @property
     def KeyMapping(self):
@@ -45,10 +39,6 @@ class KeyBindingData(object):
             self._bindings = []
         if value not in self._bindings:
             self._bindings.append(value)
-
-
-keyBindingData = KeyBindingData()
-
 
 class KeyBinding(object):
     """
@@ -117,8 +107,8 @@ class CreateKeyBindingFactory(object):
     用于创建和管理特定模组的按键绑定
     """
     def __new__(cls, modSpace, modName, modIconPath="textures/ui/keyboard_and_mouse_glyph_color"):
-        # 防止重复创建
-        for obj in keyBindingData.KeyMapping:
+        """单例模式"""
+        for obj in KeyBindingData().KeyMapping:
             if (obj.ModSpace, obj.ModName) == (modSpace, modName):
                 return obj
         cls.__bindings = []
@@ -130,7 +120,7 @@ class CreateKeyBindingFactory(object):
         self.__modName = modName
         self.__modIconPath = modIconPath
 
-        keyBindingData.KeyMapping = self
+        KeyBindingData().KeyMapping = self
 
     def RegisterKeyBinding(self, keys, callback, description, allow_modify=True, trigger_mode=0, trigger_screens=()):
         # type: (tuple, callable, str, bool, int, tuple) -> int
@@ -139,7 +129,7 @@ class CreateKeyBindingFactory(object):
         :param callback: 触发的回调函数
         :param description: 描述
         :param allow_modify: 是否允许玩家进行自定义修改 default: True
-        :param trigger_mode: 触发模式: 0 为单次触发 1 为游戏Tick触发，直到松开为止 2 为渲染帧Tick触发，直到松开为止 (默认为0)
+        :param trigger_mode: 触发模式: 0 为单次触发 1 为游戏Tick触发, 直到松开为止 2 为渲染帧Tick触发, 直到松开为止 (默认为0)
         :param trigger_screens: 允许触发的界面 (默认为空,代表全局触发)
         :return: 返回该按键绑定的唯一ID, 用于后续获取或修改
         """
@@ -254,7 +244,7 @@ class keybindingSystem(ClientSystem):
             # 在按键映射设置界面取消触发回调函数，防止在设置时出现意外情况
             return
         # 检查并触发键位绑定
-        for obj in keyBindingData.KeyMapping:
+        for obj in KeyBindingData().KeyMapping:
             for mappingData in obj.Bindings:
                 if Counter(mappingData.keys) == Counter(self._pressed_keys):
                     if mappingData.trigger_screens and screenName not in mappingData.trigger_screens:

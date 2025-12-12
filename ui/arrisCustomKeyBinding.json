@@ -23,13 +23,13 @@
                                     "100%+0px",
                                     23.0
                                 ],
-                                "layer": 1,
+                                "layer": 2,
                                 "controls": [
                                     {
                                         "top_bar": {
                                             "type": "image",
                                             "size": [
-                                                "100%+0px",
+                                                "100%+100px",
                                                 "100%+0px"
                                             ],
                                             "layer": 1,
@@ -43,7 +43,7 @@
                                                         "anchor_from": "top_middle",
                                                         "anchor_to": "top_middle",
                                                         "size": [
-                                                            "100%+0px",
+                                                            "100%+-100px",
                                                             19.0
                                                         ],
                                                         "layer": 1,
@@ -156,8 +156,8 @@
                                         "bg": {
                                             "type": "image",
                                             "size": [
-                                                "100%+0px",
-                                                "100%+0px"
+                                                "100%+100px",
+                                                "100%+100px"
                                             ],
                                             "layer": 1,
                                             "clip_direction": "left",
@@ -179,8 +179,8 @@
                                                     "stack_panel": {
                                                         "type": "stack_panel",
                                                         "size": [
-                                                            "100%+0px",
-                                                            "100%+0px"
+                                                            "100%+-100px",
+                                                            "100%+-100px"
                                                         ],
                                                         "layer": 1,
                                                         "orientation": "horizontal",
@@ -231,7 +231,7 @@
                                                                     ],
                                                                     "layer": 9,
                                                                     "size": [
-                                                                        "30%+0px",
+                                                                        "27%+0px",
                                                                         "100%+0px"
                                                                     ]
                                                                 }
@@ -1101,6 +1101,21 @@
             }
         ]
     },
+    "arris_addon_keyboard_bindings@controls_section.keyboard_and_mouse_button": {
+        "$button_text": "自定义模组按键映射",
+        "$glyph_color_texture": "textures/ui/keyboard_and_mouse_glyph_color",
+        "$glyph_size": [
+            19,
+            9
+        ],
+        "$glyph_texture": "textures/ui/keyboard_and_mouse_glyph",
+        "$toggle_group_forced_index": 114514,
+        "$toggle_name": "#arrisAddonKeyboardBindings",
+        "$toggle_property_bag": {
+            "#panel_title": "自定义模组按键映射"
+        },
+        "$tts_section_header": "$controls_section_header"
+    },
     "buttonCheckedState": {
         "type": "image",
         "size": [
@@ -1608,21 +1623,6 @@
                 }
             }
         ]
-    },
-    "arris_addon_keyboard_bindings@controls_section.keyboard_and_mouse_button": {
-        "$toggle_group_forced_index": 114514,
-        "$tts_section_header": "$controls_section_header",
-        "$glyph_texture": "textures/ui/keyboard_and_mouse_glyph",
-        "$glyph_color_texture": "textures/ui/keyboard_and_mouse_glyph_color",
-        "$button_text": "自定义模组按键映射",
-        "$glyph_size": [
-            19,
-            9
-        ],
-        "$toggle_name": "#arrisAddonKeyboardBindings",
-        "$toggle_property_bag": {
-            "#panel_title": "自定义模组按键映射"
-        }
     },
     "namespace": "arrisCustomKeyBinding"
 }
